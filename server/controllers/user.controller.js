@@ -4,6 +4,7 @@ const {
   getUserByEmail,
   createUser,
   getUserAndPositionData,
+  getUserById,
 } = require("../queries");
 
 const registerUser = async (req, res) => {
@@ -54,4 +55,19 @@ const login = (req, res, next) => {
   })(req, res, next);
 };
 
-module.exports = { registerUser, login };
+const logout = (req, res, next) => {
+  req.logout();
+  res.send("User Logged Out");
+};
+
+const checkAuthenticationController = async (req, res, next) => {
+  const isloggedIn = req.user !== undefined;
+  if (!isloggedIn) {
+    return res
+      .status(500)
+      .json({ isLoggedin: false, data: "User is not logged in" });
+  }
+  return res.status(200).json({ isLoggedin: true, data: req.user });
+};
+
+module.exports = { registerUser, login, checkAuthenticationController, logout };
