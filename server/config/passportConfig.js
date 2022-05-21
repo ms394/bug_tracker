@@ -32,11 +32,7 @@ function init(passport) {
   passport.deserializeUser(async (id, done) => {
     const userRows = await getUserById(id);
     const user = userRows.rows[0];
-    return done(null, {
-      id: user.user_id,
-      name: user.user_name,
-      email: user.email,
-    });
+    return done(null, user);
   });
 }
 

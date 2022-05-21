@@ -1,14 +1,16 @@
 const express = require("express");
-const {
-  createProjectController,
-  getProjectController,
-  addUserToProjectController,
-} = require("../controllers/project.controller");
+const projectController = require("../controllers/project.controller");
 
 const projectRouter = express.Router();
 
-projectRouter.post("/createProject", createProjectController);
-projectRouter.get("/getProjectDetails/:id", getProjectController);
-projectRouter.post("/addUserToProject", addUserToProjectController);
+projectRouter.post("/createProject", projectController.createProjectController);
+projectRouter.get(
+  "/getProjectDetails/:id",
+  projectController.getProjectController
+);
+projectRouter.post(
+  "/addUserToProject",
+  projectController.addUserToProjectController
+);
 
 module.exports = projectRouter;

@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import FormField from "../components/formField";
 import Button from "../components/button";
+import { UserContext } from "../context/user.context";
+import { useNavigate } from "react-router-dom";
 
 function LoginPage() {
   const [loginUserData, setLoginUserData] = useState({
@@ -8,7 +10,8 @@ function LoginPage() {
     password: "",
   });
 
-  const [data, setData] = useState();
+  let navigate = useNavigate();
+  const { setCurrentUser } = useContext(UserContext);
 
   const handleLoginChange = (e) => {
     const { name, value } = e.target;
@@ -20,19 +23,18 @@ function LoginPage() {
 
     fetch("http://localhost:5000/users/login", {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(loginUserData),
     })
       .then(async (res) => {
         const response = await res.json();
-        setData(response);
+        console.log(response);
+        setCurrentUser(response);
+        navigate("/");
       })
       .catch((err) => console.log(err));
   };
-
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
 
   return (
     <div className="login">

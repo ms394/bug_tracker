@@ -24,8 +24,13 @@ const app = express();
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
-app.use(cookieParser(process.env.SESSION_SECRET_KEY));
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true,
+  })
+);
 
 app.use(
   session({
@@ -34,12 +39,14 @@ app.use(
       tableName: "users_session",
     }),
     name: "SID",
-    secret: process.env.SESSION_SECRET_KEY,
+    secret: "secretcode",
     resave: true,
     saveUninitialized: true,
     cookie: { maxAge: 1000 * 60 * 60 * 24 * 30 },
   })
 );
+
+app.use(cookieParser("secretcode"));
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -49,9 +56,11 @@ app.use("/users", userRouter);
 app.use("/position", positionRouter);
 app.use("/project", projectRouter);
 
-app.get("/", async (req, res) => {
-  const userRows = await getAllUsers();
-  res.send(userRows.rows);
+app.get("/", (req, res) => {
+  console.log(req.session);
+  console.log(req.user);
+  //const userRows = await getAllUsers();
+  res.json(req.user);
 });
 
 app.listen(PORT, console.log(`Server running at ${PORT}`));
