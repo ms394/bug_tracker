@@ -79,7 +79,7 @@ function RegisterPage() {
   }, []);
 
   return (
-    <div className="login">
+    <div className="register tile registerTile">
       <h2>Register</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-field-block">
@@ -146,6 +146,10 @@ function RegisterPage() {
         </div>
 
         <Button type="submit" value="Register" style="primary" />
+        <br />
+        <span className="lightGray">
+          Already an account ? <a href="/login">Login</a>
+        </span>
       </form>
     </div>
   );

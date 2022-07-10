@@ -1,0 +1,4 @@
+export const SET_PROJECTS = "SET_PROJECTS";
+export const ADD_PROJECT = "ADD_PROJECT";
+export const ADD_PROJECT_DETAILS = "ADD_PROJECT_DETAILS";
+export const ADD_PRIORITY = "ADD_PRIORITY";

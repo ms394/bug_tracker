@@ -5,6 +5,7 @@ function Dropdown({
   id,
   values,
   label,
+  placeholder,
   dropdown_id,
   dropdown_value,
   handleChange,
@@ -15,8 +16,9 @@ function Dropdown({
       <p className="fieldLabel">{label}</p>
       <select value={selectedValue} id={id} onChange={handleChange}>
         <option key="default" value="default">
-          Select your position
+          {placeholder}
         </option>
+
         {values.map((val) => (
           <option key={val[dropdown_id]} value={val[dropdown_id]}>
             {val[dropdown_value]}

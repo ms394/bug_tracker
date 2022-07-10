@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
 import FormField from "../components/formField";
 import Button from "../components/button";
-import { UserContext } from "../context/user.context";
 import { useNavigate } from "react-router-dom";
+import UserContext from "../context/user/user-context";
 
 function LoginPage() {
   const [loginUserData, setLoginUserData] = useState({
@@ -11,7 +11,7 @@ function LoginPage() {
   });
 
   let navigate = useNavigate();
-  const { setCurrentUser } = useContext(UserContext);
+  const { loginUser } = useContext(UserContext);
 
   const handleLoginChange = (e) => {
     const { name, value } = e.target;
@@ -30,14 +30,14 @@ function LoginPage() {
       .then(async (res) => {
         const response = await res.json();
         console.log(response);
-        setCurrentUser(response);
+        loginUser(response);
         navigate("/");
       })
       .catch((err) => console.log(err));
   };
 
   return (
-    <div className="login">
+    <div className="login tile">
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
         <div className="form-field-block">
@@ -64,6 +64,10 @@ function LoginPage() {
         </div>
 
         <Button type="submit" value="Login" style="primary" />
+        <br />
+        <span className="lightGray">
+          Dont have an account ? <a href="/register">Register here</a>
+        </span>
       </form>
     </div>
   );

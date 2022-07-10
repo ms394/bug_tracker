@@ -1,15 +1,10 @@
 const bcrypt = require("bcrypt");
 const passport = require("passport");
-const {
-  getUserByEmail,
-  createUser,
-  getUserAndPositionData,
-  getUserById,
-} = require("../queries");
+const userQueries = require("../queries/users.queries");
 
 const registerUser = async (req, res) => {
   try {
-    const userRows = await getUserByEmail(req.body.email);
+    const userRows = await userQueries.getUserByEmail(req.body.email);
     if (userRows.rows.length > 0) {
       return res
         .status(400)
@@ -47,7 +42,9 @@ const login = (req, res, next) => {
     else {
       req.logIn(user, async (err) => {
         if (err) throw err;
-        const userDataRows = await getUserAndPositionData(user.user_id);
+        const userDataRows = await userQueries.getUserAndPositionData(
+          user.user_id
+        );
         const userData = userDataRows.rows[0];
         res.status(200).send(userData);
       });
@@ -64,7 +61,7 @@ const checkAuthenticationController = async (req, res, next) => {
   const isloggedIn = req.user !== undefined;
   if (!isloggedIn) {
     return res
-      .status(500)
+      .status(200)
       .json({ isLoggedin: false, data: "User is not logged in" });
   }
   return res.status(200).json({ isLoggedin: true, data: req.user });

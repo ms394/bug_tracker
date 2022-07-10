@@ -1,4 +1,4 @@
-const { getUserByEmail, getUserById } = require("../queries");
+const { getUserByEmail, getUserById } = require("../queries/users.queries");
 const LocalStrategy = require("passport-local").Strategy;
 const bcrypt = require("bcrypt");
 

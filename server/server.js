@@ -1,13 +1,13 @@
 require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
-const { getAllUsers } = require("./queries");
 
 const session = require("express-session");
 const pgSession = require("connect-pg-simple")(session);
 const cors = require("cors");
 const pool = require("./config/dbConfig");
 const cookieParser = require("cookie-parser");
+const apiErrorHandler = require("./error/api-error-handler");
 
 //Passport import
 const passport = require("passport");
@@ -56,11 +56,10 @@ app.use("/users", userRouter);
 app.use("/position", positionRouter);
 app.use("/project", projectRouter);
 
-app.get("/", (req, res) => {
-  console.log(req.session);
-  console.log(req.user);
-  //const userRows = await getAllUsers();
-  res.json(req.user);
-});
+app.use(apiErrorHandler);
 
 app.listen(PORT, console.log(`Server running at ${PORT}`));
+
+process.on("unhandledRejection", (err) => {
+  console.log(err.name, err.message);
+});

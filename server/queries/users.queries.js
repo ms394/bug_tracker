@@ -1,4 +1,4 @@
-const pool = require("./config/dbConfig");
+const pool = require("../config/dbConfig");
 
 const getAllUsers = () => {
   return new Promise((resolve, reject) => {
@@ -92,46 +92,31 @@ const getPositions = () => {
   });
 };
 
-const createProject = (project_name, project_description, created_by) => {
+const addUserToProject = (user, project, is_admin) => {
   return new Promise((resolve, reject) => {
-    const query = `INSERT INTO project(project_name,project_description,created_by)
-                  VALUES($1,$2,$3) RETURNING project_id;`;
-    pool.query(
-      query,
-      [project_name, project_description, created_by],
-      (err, result) => {
-        if (err) {
-          reject(err);
-        } else {
-          //console.log(result.rows[0].project_id);
-          resolve(result.rows[0].project_id);
-        }
-      }
-    );
-  });
-};
-
-const getProject = (id) => {
-  return new Promise((resolve, reject) => {
-    const query = `SELECT * from project WHERE project_id=$1;`;
-    pool.query(query, [id], (err, res) => {
+    const query = `INSERT INTO user_projects(is_admin,user_data,project) VALUES($1,$2,$3) RETURNING *;`;
+    pool.query(query, [is_admin, user, project], (err, res) => {
       if (err) {
         reject(err);
       } else {
-        resolve(res);
+        resolve(res.rows[0]);
       }
     });
   });
 };
 
-const addUserProject = (user, project, is_admin) => {
+const getUsersProjects = (user) => {
   return new Promise((resolve, reject) => {
-    const query = `INSERT INTO user_projects(is_admin,user_data,project) VALUES($1,$2,$3);`;
-    pool.query(query, [is_admin, user, project], (err, res) => {
+    const query = `SELECT up.id, up.is_admin,up.project as project_id,project.project_name,project.project_description, project.created_by, up.user_data
+    FROM user_projects up
+        LEFT JOIN project
+        ON up.project = project.project_id
+    WHERE up.user_data=$1`;
+    pool.query(query, [user], (err, res) => {
       if (err) {
-        reject(err);
+        return reject(err);
       } else {
-        resolve(res);
+        return resolve(res);
       }
     });
   });
@@ -144,7 +129,6 @@ module.exports = {
   createUser,
   getUserAndPositionData,
   getPositions,
-  createProject,
-  addUserProject,
-  getProject,
+  addUserToProject,
+  getUsersProjects,
 };

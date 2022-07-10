@@ -1,72 +1,99 @@
-const { createProject, addUserProject, getProject } = require("../queries");
+const projectQueries = require("../queries/project.queries");
+const userQueries = require("../queries/users.queries");
+const ApiError = require("../error/api-error");
+const logger = require("../logger/logger");
+// Controller to create projects
 
-const createProjectController = async (req, res) => {
+const createProjectController = async (req, res, next) => {
   const { project_name, project_description } = req.body;
 
   if (!req.user) {
-    return res.status(400).json({ message: "User is not logged in." });
+    next(ApiError.badRequest("User is not logged in."));
+  } else if (!project_name) {
+    next(ApiError.badRequest("Project Name is mandatory"));
   } else {
-    const created_by = req.user.id;
+    const created_by = req.user.user_id;
     try {
-      const project = await createProject(
+      const project = await projectQueries.createProject(
         project_name,
         project_description,
         created_by
       );
-      const data = await addUserProjectUtil(req.user.id, project, true);
-      if (data.status == "failure") throw data.message;
-      return res.status(201).json({ message: "Project Created", id: project });
+      const projectUserData = await userQueries.addUserToProject(
+        created_by,
+        project.project_id,
+        true
+      );
+      return res.status(201).json({
+        ...projectUserData,
+        ...project,
+      });
     } catch (err) {
-      console.log(err);
-      return res.status(400).send(err);
+      logger.error(err);
+      next(ApiError.internalServerError(err.message));
     }
   }
 };
 
-const addUserToProjectController = async (req, res) => {
+// Controller to Add User to  a Project.
+const addUserToProjectController = async (req, res, next) => {
   const { user, project, is_admin } = req.body;
   try {
-    const data = await addUserProjectUtil(user, project, is_admin);
-    if (data.status == "failure") throw data.message;
-    console.log(req.user);
+    await userQueries.addUserToProject(user, project, is_admin);
     return res.status(201).json({ message: `User added to project.` });
   } catch (err) {
-    return res.status(400).send(err);
+    logger.error(err);
+    next(ApiError.internalServerError(err.message));
   }
 };
 
-const getProjectController = async (req, res) => {
-  const id = req.query.id;
+// Controller to get details of a project.
+const getProjectController = async (req, res, next) => {
+  const id = Number(req.params.projectId);
   if (!id) {
-    return res.send(400).json({ message: "No id passed" });
+    next(ApiError.badRequest("No project id passed."));
   } else {
     try {
-      const projectRows = await getProject(id);
+      const projectRows = await projectQueries.getProjectDetails(id);
       const project = projectRows.rows[0];
       return res.status(200).json(project);
     } catch (err) {
-      console.log(err);
-      return res.status(400).send(err);
+      logger.error(err);
+      next(ApiError.internalServerError(err.message));
     }
   }
 };
 
-const addUserProjectUtil = async (user, project, is_admin) => {
-  if (!user) {
-    return "User is not present";
-  } else {
-    try {
-      await addUserProject(user, project, is_admin);
-      return { status: "success", msg: "Entry Created" };
-    } catch (err) {
-      console.log(err);
-      return { status: "failure", msg: err };
-    }
-  }
+// Get all the projects that the user is a part of. Either as a creator, admin or just a member.
+const getUsersProjectsController = async (req, res, next) => {
+  const user = req.user.user_id;
+  if (!user) next(ApiError.badRequest("No user passed"));
+  const projectsRawData = await userQueries.getUsersProjects(user);
+  const projects = projectsRawData.rows;
+  return res.status(200).json({ projects });
+};
+
+const getUsersProjectsCompleteController = async (req, res, next) => {
+  const user = req.user.user_id;
+  if (!user) next(ApiError.badRequest("No user passed"));
+  // Get data from user_projects
+  const userProjects_raw = await userQueries.getUsersProjects(user);
+  const userProjects = userProjects_raw.rows;
+
+  // Get data from priority_projects
+
+  // Get data from type_projects
+
+  // Get data from status_projects
+
+  // createdBy data from user_data
+
+  // admins data from user_data
 };
 
 module.exports = {
   createProjectController,
   addUserToProjectController,
   getProjectController,
+  getUsersProjectsController,
 };

@@ -1,4 +1,4 @@
-const { getPositions } = require("../queries");
+const { getPositions } = require("../queries/users.queries");
 
 const getAllPositions = async (req, res) => {
   try {

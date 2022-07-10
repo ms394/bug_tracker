@@ -1,15 +1,15 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
-import { UserContext } from "../context/user.context";
+import UserContext from "../context/user/user-context";
 
 function Header() {
-  const { currentUser } = useContext(UserContext);
+  const { user, isLoggedIn } = useContext(UserContext);
 
   return (
     <div className="header grid">
       <h1 className="logo">Bug Tracker</h1>
       <nav>
-        {!currentUser ? (
+        {!isLoggedIn ? (
           <ul>
             <li>
               <Link to="/">Home</Link>
@@ -24,7 +24,7 @@ function Header() {
         ) : (
           <ul>
             <li>
-              <Link to="#">Welcome {currentUser.user_name}</Link>
+              <Link to="#">Welcome {user.user_name}</Link>
             </li>
             <li>
               <Link to="/projects">Projects</Link>
